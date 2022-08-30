@@ -148,31 +148,44 @@ func encodeBasicAuth(userinfo string) string {
 // configureTLS populates tlsConf
 func configureTLS(conf *Config, tlsConf *tls.Config) error {
 	certFile := conf.SslCertificateLocation
+	sslCert := conf.SslCertificate
 	keyFile := conf.SslKeyLocation
+	sslKey := conf.SslKey
 	caFile := conf.SslCaLocation
+	sslCa := conf.SslCa
 	unsafe := conf.SslDisableEndpointVerification
 
 	var err error
 	if certFile != "" {
+		sslCert, err = ioutil.ReadFile(certFile)
+	}
+
+	if keyFile != "" {
+		sslKey, err = ioutil.ReadFile(keyFile)
+	}
+
+	if caFile != "" {
+		sslCa, err = ioutil.ReadFile(caFile)
+	}
+
+	if sslCert != nil && sslKey != nil {
 		var cert tls.Certificate
-		cert, err := tls.LoadX509KeyPair(certFile, keyFile)
+		cert, err := tls.X509KeyPair(sslCert, sslKey)
 		if err != nil {
 			return err
 		}
 		tlsConf.Certificates = []tls.Certificate{cert}
 	}
 
-	if caFile != "" {
+	if sslCa != nil {
 		if unsafe {
 			log.Println("WARN: endpoint verification is currently disabled. " +
 				"This feature should be configured for development purposes only")
 		}
-		var caCert []byte
-		caCert, err := ioutil.ReadFile(caFile)
 		if err != nil {
 			return err
 		}
-		tlsConf.RootCAs.AppendCertsFromPEM(caCert)
+		tlsConf.RootCAs.AppendCertsFromPEM(sslCa)
 		if err != nil {
 			return err
 		}

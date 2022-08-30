@@ -28,3 +28,17 @@ func TestConfigWithAuthentication(t *testing.T) {
 	maybeFail("BasicAuthCredentialsSource", expect(c.BasicAuthCredentialsSource, "USER_INFO"))
 	maybeFail("BasicAuthUserInfo", expect(c.BasicAuthUserInfo, "username:password"))
 }
+
+func TestConfigWithSSLAuthentication(t *testing.T) {
+	maybeFail = initFailFunc(t)
+
+	sslCaString 	:= "CA"
+	sslCertString	:= "CERTIFICATE"
+	sslKeyString	:= "KEY"
+
+	c := NewConfigWithSSLAuthentication("mock://", []byte(sslCaString), []byte(sslCertString), []byte(sslKeyString))
+
+	maybeFail("SslCa", expect(c.SslCa, []byte(sslCaString)))
+	maybeFail("SslCertificate", expect(c.SslCertificate, []byte(sslCertString)))
+	maybeFail("SslKey", expect(c.SslKey, []byte(sslKeyString)))
+}

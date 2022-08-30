@@ -37,10 +37,16 @@ type Config struct {
 
 	// SslCertificateLocation specifies the location of SSL certificates.
 	SslCertificateLocation string
+	// SslCertificate is the byte array stream of SSL Certificates.
+	SslCertificate []byte
 	// SslKeyLocation specifies the location of SSL keys.
 	SslKeyLocation string
+	// SslKey is the byte array stream of the SSL Key.
+	SslKey []byte
 	// SslCaLocation specifies the location of SSL certificate authorities.
 	SslCaLocation string
+	// SslCa is the byte array stream of SSL Certificate Authorities
+	SslCa []byte
 	// SslDisableEndpointVerification determines whether to disable endpoint verification.
 	SslDisableEndpointVerification bool
 
@@ -66,8 +72,11 @@ func NewConfig(url string) *Config {
 	c.SaslPassword = ""
 
 	c.SslCertificateLocation = ""
+	c.SslCertificate = nil
 	c.SslKeyLocation = ""
+	c.SslKey = nil
 	c.SslCaLocation = ""
+	c.SslCa = nil
 	c.SslDisableEndpointVerification = false
 
 	c.ConnectionTimeoutMs = 10000
@@ -83,6 +92,17 @@ func NewConfigWithAuthentication(url string, username string, password string) *
 
 	c.BasicAuthUserInfo = fmt.Sprintf("%s:%s", username, password)
 	c.BasicAuthCredentialsSource = "USER_INFO"
+
+	return c
+}
+
+// NewConfigWithSSLAuthentication returns a new configuration instance using TLS authentication.
+func NewConfigWithSSLAuthentication(url string, sslCA []byte, sslCertificate []byte, sslKey []byte) *Config {
+	c := NewConfig(url)
+
+	c.SslCa = sslCA
+	c.SslCertificate = sslCertificate
+	c.SslKey = sslKey
 
 	return c
 }
